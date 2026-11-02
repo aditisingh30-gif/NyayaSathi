@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+.vite-temp/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Project data & secrets
+.env
+*.zip
+data/conversations.json
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+# Environment secrets
+.env.*
+!.env.example
+
+# Local legal document data
+data/vector_store/
+data/processed/
+data/raw_documents/
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+# Protect all environment files
+**/.env
+**/.env.*
+!**/.env.example
