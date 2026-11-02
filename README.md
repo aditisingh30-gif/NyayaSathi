@@ -8,12 +8,12 @@ Built with **FastAPI**, **React 18 + Vite**, **ChromaDB**, **PyMuPDF**, and **Mo
 
 ## 🌟 Key Features
 
-1. **Evidence-Grounded RAG (Zero Hallucinations)**:
+1. **Evidence-Grounded Retrieval-Augmented Generation (RAG)**:
    - Every answer is strictly substantiated by authentic legal document chunks.
    - If an Act or section is unindexed or evidence is insufficient, NyayaSathi explicitly admits absence instead of fabricating provisions.
 2. **Statutory Citations & Verification**:
    - Every legal answer displays verified citations: **Act Name**, **Section / Rule Number**, **Page Number**, and **Exact Excerpt Snippet**.
-   - Hallucinated citations are automatically detected and eliminated by the Citation Verifier.
+   - The Citation Verifier checks generated citations against retrieved evidence to help identify unsupported references.
 3. **Multilingual Query Understanding**:
    - Queries can be phrased in **English**, **Hindi (Devanagari)**, or **Hinglish (Romanized Hindi)**.
    - Domain concepts (e.g., *upbhokta*, *shikayat*, *adhikar*, *aayog*, *muavza*, *dand*, *nakli*) are mapped directly to their statutory provisions.
@@ -30,8 +30,11 @@ Built with **FastAPI**, **React 18 + Vite**, **ChromaDB**, **PyMuPDF**, and **Mo
 6. **Conversation Session Management**:
    - Persistent multi-turn dialogue with context retention across follow-up questions.
    - History sidebar with conversation titles, message counts, and session deletion.
-7. **Pre-Indexed Legal Statute**:
-   - Comes pre-indexed with the official Government of India Gazette text of **The Consumer Protection Act, 2019** (Act No. 35 of 2019, 40 pages, 157 statutory chunks).
+7. **Legal Document Indexing**:
+
+   - Supports uploading and indexing official legal PDFs, including the Consumer Protection Act, 2019.
+   - Uploaded documents and local ChromaDB data are not included in this GitHub repository.
+   - Users must upload and index the required legal documents after setting up the application.
 
 ---
 
@@ -45,7 +48,7 @@ Built with **FastAPI**, **React 18 + Vite**, **ChromaDB**, **PyMuPDF**, and **Mo
 | **Vector Database** | ChromaDB (v1.5.9) with persistent storage |
 | **Embeddings** | `all-MiniLM-L6-v2` (384 dimensions, ONNX Runtime) |
 | **LLM Providers** | Google Gemini (1.5 Flash), OpenAI (GPT-4o Mini), Ollama (LLaMA3), Grounded Synthesizer |
-| **Testing** | Pytest 9.2, Pytest-Asyncio, HTTPX (43 automated tests passing) |
+| **Testing** | Pytest 9.2, Pytest-Asyncio, HTTPX (45 automated tests passing) |
 
 ---
 
@@ -232,7 +235,7 @@ npm run dev
 
 ## 🧪 Automated Testing
 
-The project includes an end-to-end automated test suite covering all 43 test cases:
+The project includes an end-to-end automated test suite covering all 45 test cases:
 
 ```powershell
 cd backend
@@ -246,7 +249,7 @@ cd backend
 - **`test_chat.py` (8 tests)**: Citation verifier, conversation store CRUD, LLM fallback provider, full chat flow, follow-up conversation context retention.
 - **`test_e2e_security.py` (9 tests)**: Complete multi-turn E2E lifecycle with a new central Act, SQL/XSS injection resilience, oversized file rejection, secret leak prevention.
 
-**Result**: **43 passed, 0 failed (100% pass rate)**.
+**Result**: **45 passed, 0 failed (100% pass rate)**.
 
 ---
 
