@@ -59,7 +59,9 @@ export default function ChatInterface() {
   const [error, setError] = useState(null);
   const [lastFailedQuery, setLastFailedQuery] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState('auto');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => window.innerWidth >= 768
+  );
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -103,6 +105,7 @@ export default function ChatInterface() {
       const detail = await fetchConversation(convId);
       setActiveConversationId(convId);
       setMessages(detail.messages || []);
+      if (window.innerWidth < 768) setSidebarOpen(false);
     } catch (err) {
       setError(`Failed to load conversation: ${err.message}`);
     } finally {
@@ -111,6 +114,7 @@ export default function ChatInterface() {
   };
 
   const handleNewConversation = () => {
+    if (window.innerWidth < 768) setSidebarOpen(false);
     setActiveConversationId(null);
     setMessages([]);
     setError(null);
@@ -201,12 +205,14 @@ export default function ChatInterface() {
   ];
 
   return (
-    <div className="flex-1 flex overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl h-[calc(100vh-140px)]">
+    <div className="relative min-w-0 flex-1 flex overflow-hidden bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl h-[calc(100vh-140px)] max-md:h-[calc(100dvh-100px)] max-md:rounded-xl">
       {/* Sidebar: Conversation Sessions */}
       <aside
         className={`${
-          sidebarOpen ? 'w-72' : 'w-0'
-        } duration-300 ease-in-out transition-all border-r border-slate-800 bg-slate-950/90 flex flex-col overflow-hidden z-20`}
+          sidebarOpen
+            ? 'w-72 max-md:absolute max-md:inset-y-0 max-md:left-0 max-md:w-[min(18rem,85vw)] max-md:shadow-2xl'
+            : 'w-0'
+        } shrink-0 duration-300 ease-in-out transition-all border-r border-slate-800 bg-slate-950/95 flex flex-col overflow-hidden z-20`}
       >
         <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -271,11 +277,21 @@ export default function ChatInterface() {
         </div>
       </aside>
 
+      {/* Mobile backdrop: tap outside the drawer to close it */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close conversation sidebar"
+          onClick={() => setSidebarOpen(false)}
+          className="absolute inset-0 z-10 bg-black/50 md:hidden"
+        />
+      )}
+
       {/* Main Chat Workspace */}
-      <div className="flex-1 flex flex-col bg-slate-900/60 overflow-hidden">
+      <div className="min-w-0 flex-1 flex flex-col bg-slate-900/60 overflow-hidden">
         {/* Chat Header */}
-        <header className="h-14 px-4 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+        <header className="min-h-14 px-2 sm:px-4 py-2 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center space-x-2 sm:space-x-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-slate-200 transition"
@@ -284,23 +300,26 @@ export default function ChatInterface() {
               <Menu className="w-4 h-4" />
             </button>
             <div>
-              <div className="text-sm font-bold text-slate-200 flex items-center space-x-2">
-                <span>NyayaSathi Legal Consultation</span>
-                <span className="text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-800/50 px-2 py-0.2 rounded-full font-mono">
+              <div className="min-w-0 text-xs sm:text-sm font-bold text-slate-200 flex items-center gap-1.5 sm:gap-2">
+                <span className="truncate">NyayaSathi</span>
+                <span className="shrink-0 text-[9px] sm:text-[10px] bg-emerald-950/60 text-emerald-400 border border-emerald-800/50 px-1.5 sm:px-2 py-0.5 rounded-full font-mono">
                   Online
                 </span>
+              </div>
+              <div className="hidden sm:block text-[10px] text-slate-500">
+                Legal Consultation
               </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex shrink-0 items-center space-x-1.5 sm:space-x-3">
             {/* LLM Provider Selection */}
             <div className="flex items-center space-x-1.5">
               <Cpu className="w-3.5 h-3.5 text-slate-400 hidden sm:inline" />
               <select
                 value={selectedProvider}
                 onChange={(e) => setSelectedProvider(e.target.value)}
-                className="bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs text-slate-300 focus:outline-none focus:border-amber-500"
+                className="max-w-[116px] sm:max-w-none bg-slate-900 border border-slate-700/80 rounded-lg px-1.5 sm:px-2.5 py-1 text-[10px] sm:text-xs text-slate-300 focus:outline-none focus:border-amber-500"
                 title="Select LLM Provider"
               >
                 <option value="auto">Provider: Auto-Detect</option>
@@ -323,7 +342,7 @@ export default function ChatInterface() {
         </header>
 
         {/* Message Feed Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <div className="min-w-0 flex-1 overflow-y-auto p-3 sm:p-6 space-y-5 sm:space-y-6">
           {messages.length === 0 ? (
             /* Welcome / Empty State */
             <div className="max-w-2xl mx-auto text-center py-8 space-y-6">
@@ -332,7 +351,7 @@ export default function ChatInterface() {
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-white tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                   Welcome to NyayaSathi
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-lg mx-auto">
@@ -376,7 +395,7 @@ export default function ChatInterface() {
                   </div>
                 ) : (
                   /* Assistant Message Card */
-                  <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                  <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 sm:p-5 space-y-4 shadow-xl">
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
                       <div className="flex items-center space-x-2">
@@ -491,7 +510,7 @@ export default function ChatInterface() {
         </div>
 
         {/* Input Bar */}
-        <footer className="p-4 border-t border-slate-800 bg-slate-950/80">
+        <footer className="p-2.5 sm:p-4 border-t border-slate-800 bg-slate-950/80">
           <div className="max-w-3xl mx-auto relative flex items-center space-x-2">
             <textarea
               ref={inputRef}
@@ -501,7 +520,7 @@ export default function ChatInterface() {
               onKeyDown={handleKeyDown}
               placeholder="Ask an Indian legal question in English, Hindi, or Hinglish (e.g. 'What is Section 35?')..."
               disabled={loading}
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/50 resize-none max-h-32"
+              className="w-full min-w-0 bg-slate-900 border border-slate-700 rounded-xl pl-3 sm:pl-4 pr-12 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/50 resize-none max-h-32"
             />
             <button
               onClick={() => handleSendMessage()}
